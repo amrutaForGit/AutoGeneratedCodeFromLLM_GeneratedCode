@@ -1,7 +1,5 @@
-def multiply_two_numbers(a, b):
-    # This function multiplies two numbers: a and b
-
-    # Multiplication operation
-    result = a * b
-    
+# function to multiply two numbers
+def multiply_numbers(aNum, bNum):
+    # Multiply aNum and bNum
+    result = aNum * bNum
     return result
