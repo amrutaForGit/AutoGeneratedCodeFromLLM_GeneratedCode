@@ -1,52 +1,44 @@
 ```python
-import argparse
 import csv
 import json
 import sys
+import argparse
 
 
-def csv_to_json(csv_filepath, indent):
-    # Try opening the CSV file
-    try:
-        with open(csv_filepath, 'r') as csv_file:
-            # Use the csv library to read data from the CSV file
-            reader = csv.DictReader(csv_file)
-            row_list = list(reader)
+# validate arguments
+def validate_args(args):
+    if args.csvfile is None:
+        raise ValueError("The CSV file path must be specified.")
 
-            # Convert the row data into JSON format
-            json_output = json.dumps(row_list, indent=indent)
+    if not args.csvfile.endswith('.csv'):
+        raise ValueError("The input file should have a .csv extension.")
 
-            # Print to stdout
-            print(json_output)
 
-    except FileNotFoundError:
-        # file not found error handling
-        print(f"No such file or directory: '{csv_filepath}'", file=sys.stderr)
-        sys.exit(1)
-    except Exception as e:
-        # general error handling
-        print(f"Unexpected error: {str(e)}", file=sys.stderr)
-        sys.exit(1)
+# parse CSV file and convert to JSON
+def csv_to_json(csv_file, indent):
+    json_data = []
+
+    with open(csv_file, 'r') as file:
+        reader = csv.DictReader(file)
+        for line in reader:
+            json_data.append(dict(line))
+
+    print(json.dumps(json_data, indent=indent))
 
 
 def main():
-    # Instantiate the parser
-    parser = argparse.ArgumentParser(description='CSV to JSON converter')
-
-    # Required positional argument
-    parser.add_argument('csv_filepath', type=str, help='CSV file path')
-
-    # Optional argument
-    parser.add_argument('--indent', type=int, help='json output indent', default=None)
-
-    # Parsing command-line arguments
+    # setup argument parser
+    parser = argparse.ArgumentParser(description='Convert a CSV file to JSON')
+    parser.add_argument('-c', '--csvfile', type=str, help='path to the CSV file')
+    parser.add_argument('-i', '--indent', type=int, default=None, 
+                        help='number of spaces for JSON indentation')
     args = parser.parse_args()
 
-    # Call csv_to_json function
-    csv_to_json(args.csv_filepath, args.indent)
+    validate_args(args)
+
+    csv_to_json(args.csvfile, args.indent)
 
 
-# Check if the script is running directly
 if __name__ == "__main__":
-    main()
+    sys.exit(main()) # use sys.exit to allow for error codes in the future
 ```
