@@ -1,40 +1,48 @@
 ```python
-# import necessary modules
+# Import required libraries
 import argparse
 from datetime import datetime, timedelta
 import os
 
-def parse_args():
-    """
-    Parses arguments from command line.
-    """
-    parser = argparse.ArgumentParser(description='Cleans log file.')
-    parser.add_argument('--days', type=int, help='Age of the lines to be removed.')
-    parser.add_argument('--input', type=str, help='Path to the log file to clean.')
+def clean_log_file(days, input_file):
+    
+    # Get timestampt N days back
+    cut_off_date = datetime.now() - timedelta(days=days)
+    
+    # Check if file exists
+    if not os.path.isfile(input_file):
+        print("Input log file does not exist.")
+        return
 
-    return parser.parse_args()
+    # Temporary file to write data to
+    output_temp = f'{input_file}.tmp'
+
+    # Open both input and temp files
+    with open(input_file, 'r') as f_in, open(output_temp, 'w') as f_out:
+        for line in f_in:
+            # Get timestamp from log line
+            line_timestamp = datetime.strptime(line[:19], "%Y-%m-%d %H:%M:%S")
+            
+            # If line timestamp is later than cut off, write it into temp file
+            if line_timestamp > cut_off_date:
+                f_out.write(line)
+
+    # Remove the original log file
+    os.remove(input_file)
+    
+    # Rename the temp log file
+    os.rename(output_temp, input_file)
 
 
-def remove_old_lines_from_file(path, days):
-    """
-    Removes lines older than `days` from a file at `path`.
-    """
+def main():
+    parser = argparse.ArgumentParser(description="Script removes lines older than N days from a log file.")
+    parser.add_argument('--days', required=True, type=int, help='Number of days')
+    parser.add_argument('--input', required=True, help='Input file path')
+    args = parser.parse_args()
 
-    # Get current date
-    current_time = datetime.now()
+    clean_log_file(args.days, args.input)
 
-    # Read file lines into list
-    with open(path, 'r') as f:
-        lines = f.readlines()
-
-    # Get lines younger than `days`
-    cleaned_lines = [line for line in lines if (current_time - datetime.strptime(line.split(' - ')[0], '%Y-%m-%d %H:%M:%S,%f')) < timedelta(days=days)]
- 
-    # Write the cleaned lines
-    with open(path, 'w') as f:
-        f.writelines(cleaned_lines)
 
 if __name__ == '__main__':
-    args = parse_args()
-    remove_old_lines_from_file(args.input, args.days)
+    main()
 ```
