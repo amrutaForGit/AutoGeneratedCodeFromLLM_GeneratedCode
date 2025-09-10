@@ -1,14 +1,15 @@
 ```java
-//Define class
-public class Sum {
-   
-    //Method to add two numbers
-    public int addTwoNumbers(int num1, int num2) {
-        //Calculate sum
+// Java program to add two numbers
+public class Main {
+    public static void main(String[] args) {
+        // defining two numbers
+        int num1 = 5, num2 = 15;
+
+        // Adding two numbers
         int sum = num1 + num2;
-        
-        //Return the sum
-        return sum;
+
+        // printing the result sum
+        System.out.println("Sum of these numbers: " + sum);
     }
 }
 ```
